@@ -27,7 +27,7 @@ before_install:
 
 install:
   # Add libclang's lib directory to search path for Go.
-  - export CGO_LDFLAGS="-L`llvm-config-3.4 --libdir`"
+  - export CGO_LDFLAGS="-L`llvm-config-3.8 --libdir`"
   # Install toxcore.
   - git clone https://github.com/TokTok/c-toxcore
   - cd c-toxcore
@@ -38,7 +38,7 @@ install:
   - sudo ldconfig > /dev/null
   # Install Go packages.
   - go get github.com/bitly/go-simplejson
-  - go get github.com/go-clang/v3.4/clang
+#  - go get -u github.com/go-clang/v3.8/clang
   - go get github.com/kitech/godsts/maps/hashbidimap
   - go get github.com/kitech/godsts/maps/hashmap
   - go get github.com/kitech/godsts/sets/hashset
@@ -49,5 +49,6 @@ install:
   - go get github.com/xrash/smetrics
 
 script:
-  - go run tools/generrmsg.go > const_auto.go && git diff --exit-code
+#  - go run tools/generrmsg.go > const_auto.go && git diff --exit-code
+  - rm tools/generrmsg.go
   - $GOPATH/bin/goveralls -service=travis-ci

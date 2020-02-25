@@ -73,7 +73,7 @@ func NewToxAV(tox *Tox) (*ToxAV, error) {
 	tav := new(ToxAV)
 	tav.tox = tox
 
-	var cerr C.TOXAV_ERR_NEW
+	var cerr C.Toxav_Err_New
 	tav.toxav = C.toxav_new(tox.toxcore, &cerr)
 	if cerr != 0 {
 		return nil, toxerr(cerr)
@@ -100,7 +100,7 @@ func (this *ToxAV) Iterate() {
 }
 
 func (this *ToxAV) Call(friendNumber uint32, audioBitRate uint32, videoBitRate uint32) (bool, error) {
-	var cerr C.TOXAV_ERR_CALL
+	var cerr C.Toxav_Err_Call
 	r := C.toxav_call(this.toxav, C.uint32_t(friendNumber), C.uint32_t(audioBitRate), C.uint32_t(videoBitRate), &cerr)
 	if cerr != 0 {
 		return bool(r), toxerr(cerr)
@@ -127,7 +127,7 @@ func (this *ToxAV) CallbackCall(cbfn cb_call_ftype, userData interface{}) {
 }
 
 func (this *ToxAV) Answer(friendNumber uint32, audioBitRate uint32, videoBitRate uint32) (bool, error) {
-	var cerr C.TOXAV_ERR_ANSWER
+	var cerr C.Toxav_Err_Answer
 	r := C.toxav_answer(this.toxav, C.uint32_t(friendNumber), C.uint32_t(audioBitRate), C.uint32_t(videoBitRate), &cerr)
 	if cerr != C.TOXAV_ERR_ANSWER_OK {
 		return false, toxerr(cerr)
@@ -153,8 +153,8 @@ func (this *ToxAV) CallbackCallState(cbfn cb_call_state_ftype, userData interfac
 }
 
 func (this *ToxAV) CallControl(friendNumber uint32, control int) (bool, error) {
-	var cerr C.TOXAV_ERR_CALL_CONTROL
-	r := C.toxav_call_control(this.toxav, C.uint32_t(friendNumber), C.TOXAV_CALL_CONTROL(control), &cerr)
+	var cerr C.Toxav_Err_Call_Control
+	r := C.toxav_call_control(this.toxav, C.uint32_t(friendNumber), C.Toxav_Call_Control(control), &cerr)
 	if cerr != C.TOXAV_ERR_CALL_CONTROL_OK {
 		return bool(r), toxerr(cerr)
 	}
@@ -162,7 +162,7 @@ func (this *ToxAV) CallControl(friendNumber uint32, control int) (bool, error) {
 }
 
 func (this *ToxAV) AudioSetBitRate(friendNumber uint32, audioBitRate uint32) (bool, error) {
-	var cerr C.TOXAV_ERR_BIT_RATE_SET
+	var cerr C.Toxav_Err_Bit_Rate_Set
 	r := C.toxav_audio_set_bit_rate(this.toxav, C.uint32_t(friendNumber), C.uint32_t(audioBitRate), &cerr)
 	if cerr != C.TOXAV_ERR_BIT_RATE_SET_OK {
 		return bool(r), toxerr(cerr)
@@ -171,7 +171,7 @@ func (this *ToxAV) AudioSetBitRate(friendNumber uint32, audioBitRate uint32) (bo
 }
 
 func (this *ToxAV) VideoSetBitRate(friendNumber uint32, videoBitRate uint32) (bool, error) {
-	var cerr C.TOXAV_ERR_BIT_RATE_SET
+	var cerr C.Toxav_Err_Bit_Rate_Set
 	r := C.toxav_video_set_bit_rate(this.toxav, C.uint32_t(friendNumber), C.uint32_t(videoBitRate), &cerr)
 	if cerr != C.TOXAV_ERR_BIT_RATE_SET_OK {
 		return bool(r), toxerr(cerr)
@@ -213,7 +213,7 @@ func (this *ToxAV) CallbackVideoBitRate(cbfn cb_video_bit_rate_ftype, userData i
 
 func (this *ToxAV) AudioSendFrame(friendNumber uint32, pcm []byte, sampleCount int, channels int, samplingRate int) (bool, error) {
 	pcm_ := (*C.int16_t)(unsafe.Pointer(&pcm[0]))
-	var cerr C.TOXAV_ERR_SEND_FRAME
+	var cerr C.Toxav_Err_Send_Frame
 	r := C.toxav_audio_send_frame(this.toxav, C.uint32_t(friendNumber), pcm_, C.size_t(sampleCount), C.uint8_t(channels), C.uint32_t(samplingRate), &cerr)
 	if cerr != C.TOXAV_ERR_SEND_FRAME_OK {
 		return false, toxerr(cerr)
@@ -235,7 +235,7 @@ func (this *ToxAV) VideoSendFrame(friendNumber uint32, width uint16, height uint
 
 	C.rgb_to_i420((*C.uchar)(unsafe.Pointer(&data[0])), this.in_image)
 
-	var cerr C.TOXAV_ERR_SEND_FRAME
+	var cerr C.Toxav_Err_Send_Frame
 	r := C.toxav_video_send_frame(this.toxav, C.uint32_t(friendNumber), C.uint16_t(width), C.uint16_t(height),
 		(*C.uint8_t)(this.in_image.planes[0]),
 		(*C.uint8_t)(this.in_image.planes[1]),

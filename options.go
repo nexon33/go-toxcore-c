@@ -5,7 +5,7 @@ package tox
 #include <string.h>
 #include <tox/tox.h>
 
-extern void toxCallbackLog(Tox*, TOX_LOG_LEVEL, char*, uint32_t, char*, char*);
+extern void toxCallbackLog(Tox*, Tox_Log_Level, char*, uint32_t, char*, char*);
 
 */
 import "C"
@@ -74,11 +74,11 @@ func (this *ToxOptions) toCToxOptions() *C.struct_Tox_Options {
 
 	if this.Savedata_data != nil {
 		C.tox_options_set_savedata_data(toxopts, (*C.uint8_t)(&this.Savedata_data[0]), C.size_t(len(this.Savedata_data)))
-		C.tox_options_set_savedata_type(toxopts, C.TOX_SAVEDATA_TYPE(this.Savedata_type))
+		C.tox_options_set_savedata_type(toxopts, C.Tox_Savedata_Type(this.Savedata_type))
 	}
 	C.tox_options_set_tcp_port(toxopts, (C.uint16_t)(this.Tcp_port))
 
-	C.tox_options_set_proxy_type(toxopts, C.TOX_PROXY_TYPE(this.Proxy_type))
+	C.tox_options_set_proxy_type(toxopts, C.Tox_Proxy_Type(this.Proxy_type))
 	C.tox_options_set_proxy_port(toxopts, C.uint16_t(this.Proxy_port))
 	if len(this.Proxy_host) > 0 {
 		C.tox_options_set_proxy_host(toxopts, C.CString(this.Proxy_host))
@@ -95,7 +95,7 @@ func (this *ToxOptions) toCToxOptions() *C.struct_Tox_Options {
 }
 
 //export toxCallbackLog
-func toxCallbackLog(ctox *C.Tox, level C.TOX_LOG_LEVEL, file *C.char, line C.uint32_t, fname *C.char, msg *C.char) {
+func toxCallbackLog(ctox *C.Tox, level C.Tox_Log_Level, file *C.char, line C.uint32_t, fname *C.char, msg *C.char) {
 	t := cbUserDatas.get(ctox)
 	if t != nil && t.opts != nil && t.opts.LogCallback != nil {
 		t.opts.LogCallback(t, int(level), C.GoString(file), uint32(line), C.GoString(fname), C.GoString(msg))

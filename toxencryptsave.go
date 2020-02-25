@@ -21,7 +21,7 @@ func Derive(passphrase []byte) (*ToxPassKey, error) {
 
 	passphrase_ := (*C.uint8_t)(&passphrase[0])
 
-	var cerr C.TOX_ERR_KEY_DERIVATION
+	var cerr C.Tox_Err_Key_Derivation
 	this.cpk = C.tox_pass_key_derive(passphrase_, C.size_t(len(passphrase)), &cerr)
 	if cerr != C.TOX_ERR_KEY_DERIVATION_OK {
 		return nil, toxerr(cerr)
@@ -35,7 +35,7 @@ func DeriveWithSalt(passphrase []byte, salt []byte) (*ToxPassKey, error) {
 	passphrase_ := (*C.uint8_t)(&passphrase[0])
 	salt_ := (*C.uint8_t)(&salt[0])
 
-	var cerr C.TOX_ERR_KEY_DERIVATION
+	var cerr C.Tox_Err_Key_Derivation
 	this.cpk = C.tox_pass_key_derive_with_salt(passphrase_, C.size_t(len(passphrase)), salt_, &cerr)
 	if cerr != C.TOX_ERR_KEY_DERIVATION_OK {
 		return nil, toxerr(cerr)
@@ -48,7 +48,7 @@ func (this *ToxPassKey) Encrypt(plaintext []byte) (bool, error, []byte) {
 	ciphertext_ := (*C.uint8_t)(&ciphertext[0])
 	plaintext_ := (*C.uint8_t)(&plaintext[0])
 
-	var cerr C.TOX_ERR_ENCRYPTION
+	var cerr C.Tox_Err_Encryption
 	ok := C.tox_pass_key_encrypt(this.cpk, plaintext_, C.size_t(len(plaintext)), ciphertext_, &cerr)
 
 	var err error
@@ -63,7 +63,7 @@ func (this *ToxPassKey) Decrypt(ciphertext []byte) (bool, error, []byte) {
 	plaintext := make([]byte, len(ciphertext)-PASS_ENCRYPTION_EXTRA_LENGTH)
 	plaintext_ := (*C.uint8_t)(&plaintext[0])
 
-	var cerr C.TOX_ERR_DECRYPTION
+	var cerr C.Tox_Err_Decryption
 	ok := C.tox_pass_key_decrypt(this.cpk, ciphertext_, C.size_t(len(ciphertext)), plaintext_, &cerr)
 	var err error
 	if !bool(ok) {
@@ -77,7 +77,7 @@ func GetSalt(ciphertext []byte) (bool, error, []byte) {
 	salt := make([]byte, int(C.TOX_PASS_SALT_LENGTH))
 	salt_ := (*C.uint8_t)(&salt[0])
 
-	var cerr C.TOX_ERR_GET_SALT
+	var cerr C.Tox_Err_Get_Salt
 	ok := C.tox_get_salt(ciphertext_, salt_, &cerr)
 	var err error
 	if !bool(ok) {
@@ -101,7 +101,7 @@ func PassEncrypt(plaintext []byte, passphrase []byte) (ciphertext []byte, err er
 	plaintext_ := (*C.uint8_t)(&plaintext[0])
 	passphrase_ := (*C.uint8_t)(&passphrase[0])
 
-	var cerr C.TOX_ERR_ENCRYPTION
+	var cerr C.Tox_Err_Encryption
 	ok := C.tox_pass_encrypt(plaintext_, C.size_t(len(plaintext)), passphrase_, C.size_t(len(passphrase)), ciphertext_, &cerr)
 
 	if !bool(ok) {
@@ -116,7 +116,7 @@ func PassDecrypt(ciphertext []byte, passphrase []byte) (plaintext []byte, err er
 	plaintext_ := (*C.uint8_t)(&plaintext[0])
 	passphrase_ := (*C.uint8_t)(&plaintext[0])
 
-	var cerr C.TOX_ERR_DECRYPTION
+	var cerr C.Tox_Err_Decryption
 	ok := C.tox_pass_decrypt(ciphertext_, C.size_t(len(ciphertext)), passphrase_, C.size_t(len(passphrase)), plaintext_, &cerr)
 
 	if !bool(ok) {

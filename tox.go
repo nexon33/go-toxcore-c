@@ -19,7 +19,7 @@ void callbackFriendLossyPacketWrapperForC(Tox *, uint32_t, uint8_t*, size_t, voi
 void callbackFriendLosslessPacketWrapperForC(Tox *, uint32_t, uint8_t*, size_t, void*);
 void callbackSelfConnectionStatusWrapperForC(Tox *, int, void*);
 void callbackFileRecvControlWrapperForC(Tox *tox, uint32_t friend_number, uint32_t file_number,
-                                      TOX_FILE_CONTROL control, void *user_data);
+                                      Tox_File_Control control, void *user_data);
 void callbackFileRecvWrapperForC(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind,
                                uint64_t file_size, uint8_t *filename, size_t filename_length, void *user_data);
 void callbackFileRecvChunkWrapperForC(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position,
@@ -372,7 +372,7 @@ func (this *Tox) CallbackSelfConnectionStatusAdd(cbfn cb_self_connection_status_
 // 包内部函数
 //export callbackFileRecvControlWrapperForC
 func callbackFileRecvControlWrapperForC(m *C.Tox, friendNumber C.uint32_t, fileNumber C.uint32_t,
-	control C.TOX_FILE_CONTROL, userData unsafe.Pointer) {
+	control C.Tox_File_Control, userData unsafe.Pointer) {
 	var this = cbUserDatas.get(m)
 	for cbfni, ud := range this.cb_file_recv_controls {
 		cbfn := *(*cb_file_recv_control_ftype)(cbfni)
@@ -477,7 +477,7 @@ func NewTox(opt *ToxOptions) *Tox {
 	toxopts := tox.opts.toCToxOptions()
 	defer C.tox_options_free(toxopts)
 
-	var cerr C.TOX_ERR_NEW
+	var cerr C.Tox_Err_New
 	var toxcore = C.tox_new(toxopts, &cerr)
 	tox.toxcore = toxcore
 	if toxcore == nil {
@@ -610,7 +610,7 @@ func (this *Tox) Bootstrap(addr string, port uint16, pubkey string) (bool, error
 	var _port = C.uint16_t(port)
 	var _cpubkey = (*C.uint8_t)(&b_pubkey[0])
 
-	var cerr C.TOX_ERR_BOOTSTRAP
+	var cerr C.Tox_Err_Bootstrap
 	r := C.tox_bootstrap(this.toxcore, (*C.char)(unsafe.Pointer(&_addr[0])), _port, _cpubkey, &cerr)
 	if cerr > 0 {
 		return false, toxerr(cerr)
@@ -643,7 +643,7 @@ func (this *Tox) FriendAdd(friendId string, message string) (uint32, error) {
 
 	cmessage := []byte(message)
 
-	var cerr C.TOX_ERR_FRIEND_ADD
+	var cerr C.Tox_Err_Friend_Add
 	r := C.tox_friend_add(this.toxcore, friendId_p,
 		(*C.uint8_t)(&cmessage[0]), C.size_t(len(message)), &cerr)
 	if cerr > 0 {
@@ -662,7 +662,7 @@ func (this *Tox) FriendAddNorequest(friendId string) (uint32, error) {
 	}
 	friendId_p := (*C.uint8_t)(&friendId_b[0])
 
-	var cerr C.TOX_ERR_FRIEND_ADD
+	var cerr C.Tox_Err_Friend_Add
 	r := C.tox_friend_add_norequest(this.toxcore, friendId_p, &cerr)
 	if cerr > 0 {
 		return uint32(r), toxerr(cerr)
@@ -677,7 +677,7 @@ func (this *Tox) FriendByPublicKey(pubkey string) (uint32, error) {
 	}
 	var pubkey_p = (*C.uint8_t)(&pubkey_b[0])
 
-	var cerr C.TOX_ERR_FRIEND_BY_PUBLIC_KEY
+	var cerr C.Tox_Err_Friend_By_Public_Key
 	r := C.tox_friend_by_public_key(this.toxcore, pubkey_p, &cerr)
 	if cerr != C.TOX_ERR_FRIEND_BY_PUBLIC_KEY_OK {
 		return uint32(r), toxerr(cerr)
@@ -690,7 +690,7 @@ func (this *Tox) FriendGetPublicKey(friendNumber uint32) (string, error) {
 	var pubkey_b = make([]byte, PUBLIC_KEY_SIZE)
 	var pubkey_p = (*C.uint8_t)(&pubkey_b[0])
 
-	var cerr C.TOX_ERR_FRIEND_GET_PUBLIC_KEY
+	var cerr C.Tox_Err_Friend_Get_Public_Key
 	r := C.tox_friend_get_public_key(this.toxcore, _fn, pubkey_p, &cerr)
 	if cerr > 0 || bool(r) == false {
 		return "", toxerr(cerr)
@@ -706,7 +706,7 @@ func (this *Tox) FriendDelete(friendNumber uint32) (bool, error) {
 
 	var _fn = C.uint32_t(friendNumber)
 
-	var cerr C.TOX_ERR_FRIEND_DELETE
+	var cerr C.Tox_Err_Friend_Delete
 	r := C.tox_friend_delete(this.toxcore, _fn, &cerr)
 	if cerr > 0 {
 		return bool(r), toxerr(cerr)
@@ -717,7 +717,7 @@ func (this *Tox) FriendDelete(friendNumber uint32) (bool, error) {
 func (this *Tox) FriendGetConnectionStatus(friendNumber uint32) (int, error) {
 	var _fn = C.uint32_t(friendNumber)
 
-	var cerr C.TOX_ERR_FRIEND_QUERY
+	var cerr C.Tox_Err_Friend_Query
 	r := C.tox_friend_get_connection_status(this.toxcore, _fn, &cerr)
 	if cerr > 0 {
 		return int(r), toxerr(cerr)
@@ -743,8 +743,8 @@ func (this *Tox) FriendSendMessage(friendNumber uint32, message string) (uint32,
 	var _message = []byte(message)
 	var _length = C.size_t(len(message))
 
-	var mtype C.TOX_MESSAGE_TYPE = C.TOX_MESSAGE_TYPE_NORMAL
-	var cerr C.TOX_ERR_FRIEND_SEND_MESSAGE
+	var mtype C.Tox_Message_Type = C.TOX_MESSAGE_TYPE_NORMAL
+	var cerr C.Tox_Err_Friend_Send_Message
 	r := C.tox_friend_send_message(this.toxcore, _fn, mtype, (*C.uint8_t)(&_message[0]), _length, &cerr)
 	if cerr != C.TOX_ERR_FRIEND_SEND_MESSAGE_OK {
 		return uint32(r), toxerr(cerr)
@@ -760,8 +760,8 @@ func (this *Tox) FriendSendAction(friendNumber uint32, action string) (uint32, e
 	var _action = []byte(action)
 	var _length = C.size_t(len(action))
 
-	var mtype C.TOX_MESSAGE_TYPE = C.TOX_MESSAGE_TYPE_ACTION
-	var cerr C.TOX_ERR_FRIEND_SEND_MESSAGE
+	var mtype C.Tox_Message_Type = C.TOX_MESSAGE_TYPE_ACTION
+	var cerr C.Tox_Err_Friend_Send_Message
 	r := C.tox_friend_send_message(this.toxcore, _fn, mtype, (*C.uint8_t)(&_action[0]), _length, &cerr)
 	if cerr > 0 {
 		return uint32(r), toxerr(cerr)
@@ -776,7 +776,7 @@ func (this *Tox) SelfSetName(name string) error {
 	var _name = []byte(name)
 	var _length = C.size_t(len(name))
 
-	var cerr C.TOX_ERR_SET_INFO
+	var cerr C.Tox_Err_Set_Info
 	C.tox_self_set_name(this.toxcore, (*C.uint8_t)(&_name[0]), _length, &cerr)
 	if cerr > 0 {
 		return toxerr(cerr)
@@ -795,7 +795,7 @@ func (this *Tox) SelfGetName() string {
 func (this *Tox) FriendGetName(friendNumber uint32) (string, error) {
 	var _fn = C.uint32_t(friendNumber)
 
-	var cerr C.TOX_ERR_FRIEND_QUERY
+	var cerr C.Tox_Err_Friend_Query
 	nlen := C.tox_friend_get_name_size(this.toxcore, _fn, &cerr)
 	_name := make([]byte, nlen)
 
@@ -809,7 +809,7 @@ func (this *Tox) FriendGetName(friendNumber uint32) (string, error) {
 func (this *Tox) FriendGetNameSize(friendNumber uint32) (int, error) {
 	var _fn = C.uint32_t(friendNumber)
 
-	var cerr C.TOX_ERR_FRIEND_QUERY
+	var cerr C.Tox_Err_Friend_Query
 	r := C.tox_friend_get_name_size(this.toxcore, _fn, &cerr)
 	if cerr > 0 {
 		return int(r), toxerr(cerr)
@@ -829,7 +829,7 @@ func (this *Tox) SelfSetStatusMessage(status string) (bool, error) {
 	var _status = []byte(status)
 	var _length = C.size_t(len(status))
 
-	var cerr C.TOX_ERR_SET_INFO
+	var cerr C.Tox_Err_Set_Info
 	r := C.tox_self_set_status_message(this.toxcore, (*C.uint8_t)(&_status[0]), _length, &cerr)
 	if cerr > 0 {
 		return false, toxerr(cerr)
@@ -838,14 +838,14 @@ func (this *Tox) SelfSetStatusMessage(status string) (bool, error) {
 }
 
 func (this *Tox) SelfSetStatus(status uint8) {
-	var _status = C.TOX_USER_STATUS(status)
+	var _status = C.Tox_User_Status(status)
 	C.tox_self_set_status(this.toxcore, _status)
 }
 
 func (this *Tox) FriendGetStatusMessageSize(friendNumber uint32) (int, error) {
 	var _fn = C.uint32_t(friendNumber)
 
-	var cerr C.TOX_ERR_FRIEND_QUERY
+	var cerr C.Tox_Err_Friend_Query
 	r := C.tox_friend_get_status_message_size(this.toxcore, _fn, &cerr)
 	if cerr > 0 {
 		return int(r), toxerr(cerr)
@@ -860,7 +860,7 @@ func (this *Tox) SelfGetStatusMessageSize() int {
 
 func (this *Tox) FriendGetStatusMessage(friendNumber uint32) (string, error) {
 	var _fn = C.uint32_t(friendNumber)
-	var cerr C.TOX_ERR_FRIEND_QUERY
+	var cerr C.Tox_Err_Friend_Query
 	len := C.tox_friend_get_status_message_size(this.toxcore, _fn, &cerr)
 	if cerr > 0 {
 		return "", toxerr(cerr)
@@ -887,7 +887,7 @@ func (this *Tox) SelfGetStatusMessage() (string, error) {
 func (this *Tox) FriendGetStatus(friendNumber uint32) (int, error) {
 	var _fn = C.uint32_t(friendNumber)
 
-	var cerr C.TOX_ERR_FRIEND_QUERY
+	var cerr C.Tox_Err_Friend_Query
 	r := C.tox_friend_get_status(this.toxcore, _fn, &cerr)
 	if cerr > 0 {
 		return int(r), toxerr(cerr)
@@ -903,7 +903,7 @@ func (this *Tox) SelfGetStatus() int {
 func (this *Tox) FriendGetLastOnline(friendNumber uint32) (uint64, error) {
 	var _fn = C.uint32_t(friendNumber)
 
-	var cerr C.TOX_ERR_FRIEND_GET_LAST_ONLINE
+	var cerr C.Tox_Err_Friend_Get_Last_Online
 	r := C.tox_friend_get_last_online(this.toxcore, _fn, &cerr)
 	if cerr > 0 {
 		return uint64(r), toxerr(cerr)
@@ -918,7 +918,7 @@ func (this *Tox) SelfSetTyping(friendNumber uint32, typing bool) (bool, error) {
 	var _fn = C.uint32_t(friendNumber)
 	var _typing = C._Bool(typing)
 
-	var cerr C.TOX_ERR_SET_TYPING
+	var cerr C.Tox_Err_Set_Typing
 	r := C.tox_self_set_typing(this.toxcore, _fn, _typing, &cerr)
 	if cerr > 0 {
 		return bool(r), toxerr(cerr)
@@ -929,7 +929,7 @@ func (this *Tox) SelfSetTyping(friendNumber uint32, typing bool) (bool, error) {
 func (this *Tox) FriendGetTyping(friendNumber uint32) (bool, error) {
 	var _fn = C.uint32_t(friendNumber)
 
-	var cerr C.TOX_ERR_FRIEND_QUERY
+	var cerr C.Tox_Err_Friend_Query
 	r := C.tox_friend_get_typing(this.toxcore, _fn, &cerr)
 	if cerr > 0 {
 		return bool(r), toxerr(cerr)
@@ -964,7 +964,7 @@ func (this *Tox) SelfGetDhtId() string {
 }
 
 func (this *Tox) SelfGetUdpPort() (uint16, error) {
-	var cerr C.TOX_ERR_GET_PORT
+	var cerr C.Tox_Err_Get_Port
 	r := C.tox_self_get_udp_port(this.toxcore, &cerr)
 	if cerr > 0 {
 		return 0, toxerr(cerr)
@@ -1012,7 +1012,7 @@ func (this *Tox) FriendSendLossyPacket(friendNumber uint32, data string) error {
 	var _data = []byte(data)
 	var _length = C.size_t(len(data))
 
-	var cerr C.TOX_ERR_FRIEND_CUSTOM_PACKET
+	var cerr C.Tox_Err_Friend_Custom_Packet
 	r := C.tox_friend_send_lossy_packet(this.toxcore, _fn, (*C.uint8_t)(&_data[0]), _length, &cerr)
 	if !r || cerr != C.TOX_ERR_FRIEND_CUSTOM_PACKET_OK {
 		return toxerr(cerr)
@@ -1028,7 +1028,7 @@ func (this *Tox) FriendSendLosslessPacket(friendNumber uint32, data string) erro
 	var _data = []byte(data)
 	var _length = C.size_t(len(data))
 
-	var cerr C.TOX_ERR_FRIEND_CUSTOM_PACKET
+	var cerr C.Tox_Err_Friend_Custom_Packet
 	r := C.tox_friend_send_lossless_packet(this.toxcore, _fn, (*C.uint8_t)(&_data[0]), _length, &cerr)
 	if !r || cerr != C.TOX_ERR_FRIEND_CUSTOM_PACKET_OK {
 		return toxerr(cerr)
@@ -1049,9 +1049,9 @@ func (this *Tox) Hash(data string, datalen uint32) (string, bool, error) {
 
 // tox_callback_file_***
 func (this *Tox) FileControl(friendNumber uint32, fileNumber uint32, control int) (bool, error) {
-	var cerr C.TOX_ERR_FILE_CONTROL
+	var cerr C.Tox_Err_File_Control
 	r := C.tox_file_control(this.toxcore, C.uint32_t(friendNumber), C.uint32_t(fileNumber),
-		C.TOX_FILE_CONTROL(control), &cerr)
+		C.Tox_File_Control(control), &cerr)
 	if cerr > 0 {
 		return false, toxerr(cerr)
 	}
@@ -1067,7 +1067,7 @@ func (this *Tox) FileSend(friendNumber uint32, kind uint32, fileSize uint64, fil
 
 	_fileName := []byte(fileName)
 
-	var cerr C.TOX_ERR_FILE_SEND
+	var cerr C.Tox_Err_File_Send
 	r := C.tox_file_send(this.toxcore, C.uint32_t(friendNumber), C.uint32_t(kind), C.uint64_t(fileSize),
 		nil, (*C.uint8_t)(&_fileName[0]), C.size_t(len(fileName)), &cerr)
 	if cerr > 0 {
@@ -1083,7 +1083,7 @@ func (this *Tox) FileSendChunk(friendNumber uint32, fileNumber uint32, position 
 	if data == nil || len(data) == 0 {
 		return false, toxerr("empty data")
 	}
-	var cerr C.TOX_ERR_FILE_SEND_CHUNK
+	var cerr C.Tox_Err_File_Send_Chunk
 	r := C.tox_file_send_chunk(this.toxcore, C.uint32_t(friendNumber), C.uint32_t(fileNumber),
 		C.uint64_t(position), (*C.uint8_t)(&data[0]), C.size_t(len(data)), &cerr)
 	if cerr > 0 {
@@ -1096,7 +1096,7 @@ func (this *Tox) FileSeek(friendNumber uint32, fileNumber uint32, position uint6
 	this.lock()
 	defer this.unlock()
 
-	var cerr C.TOX_ERR_FILE_SEEK
+	var cerr C.Tox_Err_File_Seek
 	r := C.tox_file_seek(this.toxcore, C.uint32_t(friendNumber), C.uint32_t(fileNumber),
 		C.uint64_t(position), &cerr)
 	if cerr > 0 {
@@ -1106,7 +1106,7 @@ func (this *Tox) FileSeek(friendNumber uint32, fileNumber uint32, position uint6
 }
 
 func (this *Tox) FileGetFileId(friendNumber uint32, fileNumber uint32) (string, error) {
-	var cerr C.TOX_ERR_FILE_GET
+	var cerr C.Tox_Err_File_Get
 	var fileId_b = make([]byte, C.TOX_FILE_ID_LENGTH)
 
 	r := C.tox_file_get_file_id(this.toxcore, C.uint32_t(fileNumber), C.uint32_t(fileNumber),
@@ -1136,7 +1136,7 @@ func (this *Tox) AddTcpRelay(addr string, port uint16, pubkey string) (bool, err
 	}
 	var _pubkey = (*C.uint8_t)(&b_pubkey[0])
 
-	var cerr C.TOX_ERR_BOOTSTRAP
+	var cerr C.Tox_Err_Bootstrap
 	r := C.tox_add_tcp_relay(this.toxcore, _addr, _port, _pubkey, &cerr)
 	if cerr > 0 {
 		return bool(r), toxerr(cerr)

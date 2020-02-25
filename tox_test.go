@@ -18,14 +18,14 @@ import (
 // `go test -v -run Covers` will show untested functions
 // TODO boundary value testing
 
+const wantBootstrapTest = false
+
 var bsnodes = []struct {
 	host string
 	port string
 	key  string
 }{
-	{"node.tox.biribiri.org", "33445", "F404ABAA1C99A9D37D61AB54898F56793E1DEF8BD46B1038B9D822E8460FAB67"},
-	{"178.62.250.138", "33445", "788236D34978D1D5BD822F0A5BEBD2C53C64CC31CD3149350EE27D4D9A2F9B6B"},
-	{"198.98.51.198", "33445", "1D5A5F2F5D6233058BF0259B09622FB40B482E4FA0931EB8FD3AB8E7BF7DAF6F"},
+	{"tox.initramfs.io", "33445", "3F0A45A268367C1BEA652F258C85F4A66DA76BCAA667A49E770BCC4917AB6A25"},
 }
 
 func init() {
@@ -325,26 +325,28 @@ func link(a *MiniTox, b *MiniTox) error {
 
 // login udp / login tcp
 func TestCommunication(t *testing.T) {
-	t.Run("Login/connect", func(t *testing.T) {
-		t.Parallel()
+	if wantBootstrapTest {
+		t.Run("Login/connect", func(t *testing.T) {
+			t.Parallel()
 
-		_t := NewMiniTox()
-		defer _t.t.Kill()
-		_t.bootstrap()
-		waitcond(func() bool {
-			if _t.t.IterationInterval() == 0 {
-				t.Error("why")
+			_t := NewMiniTox()
+			defer _t.t.Kill()
+			_t.bootstrap()
+			waitcond(func() bool {
+				if _t.t.IterationInterval() == 0 {
+					t.Error("why")
+				}
+				_t.t.Iterate()
+				if _t.t.SelfGetConnectionStatus() > CONNECTION_NONE {
+					return true
+				}
+				return false
+			}, 60)
+			if _t.t.SelfGetConnectionStatus() == CONNECTION_NONE {
+				t.Error("maybe iterate not use")
 			}
-			_t.t.Iterate()
-			if _t.t.SelfGetConnectionStatus() > CONNECTION_NONE {
-				return true
-			}
-			return false
-		}, 60)
-		if _t.t.SelfGetConnectionStatus() == CONNECTION_NONE {
-			t.Error("maybe iterate not use")
-		}
-	})
+		})
+	}
 
 	t.Run("Friend/add friend", func(t *testing.T) {
 		t.Parallel()

@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/go-clang/v3.4/clang"
+	"github.com/go-clang/v3.8/clang"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 	_ = tuArgs
 
 	// auto find clang include dir
-	clincdir := "/usr/lib/clang/3.4/include"
+	clincdir := "/usr/lib/clang/3.8/include"
 	clexe, err := exec.LookPath("clang")
 	if err != nil {
 		log.Println(err)
