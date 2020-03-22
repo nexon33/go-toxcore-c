@@ -9,7 +9,6 @@ import (
 	"log"
 	"reflect"
 	"runtime"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -22,10 +21,10 @@ const wantBootstrapTest = false
 
 var bsnodes = []struct {
 	host string
-	port string
+	port uint16
 	key  string
 }{
-	{"tox.initramfs.io", "33445", "3F0A45A268367C1BEA652F258C85F4A66DA76BCAA667A49E770BCC4917AB6A25"},
+	{"tox.initramfs.io", 33445, "3F0A45A268367C1BEA652F258C85F4A66DA76BCAA667A49E770BCC4917AB6A25"},
 }
 
 func init() {
@@ -216,28 +215,27 @@ func TestBootstrap(t *testing.T) {
 	bsnode := bsnodes[0]
 	_t := NewTox(nil)
 	defer _t.Kill()
-	port, _ := strconv.Atoi(bsnode.port)
 
 	t.Run("success", func(t *testing.T) {
-		if ok, err := _t.Bootstrap(bsnode.host, uint16(port), bsnode.key); !ok || err != nil {
+		if ok, err := _t.Bootstrap(bsnode.host, bsnode.port, bsnode.key); !ok || err != nil {
 			t.Error("must ok", ok, err)
 		}
 	})
 	t.Run("failed", func(t *testing.T) {
 		brkey := bsnode.key
 		brkey = "XYZAB" + bsnode.key[3:]
-		if ok, err := _t.Bootstrap(bsnode.host, uint16(port), brkey); ok || err == nil {
+		if ok, err := _t.Bootstrap(bsnode.host, bsnode.port, brkey); ok || err == nil {
 			t.Error("must failed", ok, err)
 		}
-		if ok, err := _t.Bootstrap("a.b.c.d", uint16(port), bsnode.key); ok || err == nil {
+		if ok, err := _t.Bootstrap("a.b.c.d", bsnode.port, bsnode.key); ok || err == nil {
 			t.Error("must failed", ok, err)
 		}
 	})
 	t.Run("relay", func(t *testing.T) {
-		if ok, err := _t.AddTcpRelay(bsnode.host, uint16(port), bsnode.key); !ok || err != nil {
+		if ok, err := _t.AddTcpRelay(bsnode.host, bsnode.port, bsnode.key); !ok || err != nil {
 			t.Error("must ok", ok, err)
 		}
-		if ok, err := _t.AddTcpRelay("a.b.c.d", uint16(port), bsnode.key); ok || err == nil {
+		if ok, err := _t.AddTcpRelay("a.b.c.d", bsnode.port, bsnode.key); ok || err == nil {
 			t.Error("must failed", ok, err)
 		}
 	})
@@ -272,11 +270,10 @@ func (minitox *MiniTox) Iterate() {
 func (minitox *MiniTox) bootstrap() {
 	for idx := 0; idx < len(bsnodes)/3; idx++ {
 		bsnode := bsnodes[idx]
-		port, err := strconv.Atoi(bsnode.port)
-		_, err = minitox.t.Bootstrap(bsnode.host, uint16(port), bsnode.key)
+		_, err = minitox.t.Bootstrap(bsnode.host, bsnode.port, bsnode.key)
 		if err != nil {
 		}
-		_, err = minitox.t.AddTcpRelay(bsnode.host, uint16(port), bsnode.key)
+		_, err = minitox.t.AddTcpRelay(bsnode.host, bsnode.port, bsnode.key)
 		if err != nil {
 		}
 	}
