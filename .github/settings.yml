@@ -1,0 +1,19 @@
+---
+_extends: template
+
+repository:
+  name: go-toxcore-c
+  description: The golang bindings for libtoxcore (Project Tox).
+  topics: toxcore
+  has_issues: true
+
+branches:
+  - name: "master"
+    protection:
+      required_status_checks:
+        contexts:
+          - Codacy/PR Quality Review
+          - Travis CI - Pull Request
+          - WIP
+          - code-review/reviewable
+          - license/cla
