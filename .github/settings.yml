@@ -1,5 +1,5 @@
 ---
-_extends: template
+_extends: .github
 
 repository:
   name: go-toxcore-c
@@ -12,8 +12,5 @@ branches:
     protection:
       required_status_checks:
         contexts:
-          - Codacy/PR Quality Review
-          - Travis CI - Pull Request
-          - WIP
+          - Codacy Static Code Analysis
           - code-review/reviewable
-          - license/cla
