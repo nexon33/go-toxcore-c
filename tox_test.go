@@ -914,9 +914,16 @@ func TestCommunication(t *testing.T) {
 		opts.ThreadSafe = true
 		opts.Tcp_port = 34567
 		_t1 := NewTox(opts)
+		if _t1 == nil {
+			t.Error("NewTox failed")
+		}
+		defer _t1.Kill()
 		log.Println(_t1)
 		go func() {
 			for {
+				if _t1.Killed {
+					return
+				}
 				_t1.Iterate()
 				time.Sleep(100 * time.Millisecond)
 			}
@@ -926,12 +933,19 @@ func TestCommunication(t *testing.T) {
 		opts2.ThreadSafe = true
 		opts2.Tcp_port = 34568
 		_t2 := NewTox(opts2)
+		if _t2 == nil {
+			t.Error("NewTox failed")
+		}
+		defer _t2.Kill()
 		log.Println(_t2)
 		_t2.CallbackGroupInviteAdd(func(_ *Tox, friendNumber uint32, itype uint8, data string, userData interface{}) {
 			log.Println(friendNumber, itype)
 		}, nil)
 		go func() {
 			for {
+				if _t2.Killed {
+					return
+				}
 				_t2.Iterate()
 				time.Sleep(100 * time.Millisecond)
 			}

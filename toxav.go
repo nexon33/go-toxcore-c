@@ -316,7 +316,7 @@ func callbackAudioForC(m *C.Tox, groupnumber C.uint32_t, peernumber C.uint32_t, 
 }
 
 func (this *Tox) AddAVGroupChat(cbfn cb_audio_ftype) uint32 {
-	r := C.toxav_add_av_groupchat(this.toxcore, (*[0]byte)(unsafe.Pointer(C.callbackAudioForC)), nil)
+	r := C.toxav_add_av_groupchat(this.toxcore, (*C.toxav_audio_data_cb)(unsafe.Pointer(C.callbackAudioForC)), nil)
 	if cbfn != nil {
 		this.cb_audios[uint32(r)] = cbfn
 	}
@@ -335,7 +335,7 @@ func (this *Tox) JoinAVGroupChat(friendNumber uint32, cookie string, cbfn cb_aud
 	var _length = C.uint16_t(length)
 
 	r := C.toxav_join_av_groupchat(this.toxcore, _fn, _data, _length,
-		(*[0]byte)(unsafe.Pointer(C.callbackAudioForC)), nil)
+		(*C.toxav_audio_data_cb)(unsafe.Pointer(C.callbackAudioForC)), nil)
 	if int(r) == -1 {
 		return uint32(r), errors.New("Join av group chat failed")
 	}

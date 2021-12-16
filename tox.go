@@ -76,6 +76,7 @@ type cb_file_chunk_request_ftype func(this *Tox, friend_number uint32, file_numb
 type Tox struct {
 	opts       *ToxOptions
 	toxcore    *C.Tox // save C.Tox
+	Killed     bool
 	threadSafe bool
 	mu         deadlock.RWMutex
 	// mu sync.RWMutex
@@ -527,6 +528,7 @@ func (this *Tox) Kill() {
 	cbUserDatas.del(this.toxcore)
 	C.tox_kill(this.toxcore)
 	this.toxcore = nil
+	this.Killed = true
 }
 
 // uint32_t tox_iteration_interval(Tox *tox);
@@ -543,6 +545,12 @@ func (this *Tox) IterationInterval() int {
 // compatable with legacy version
 func (this *Tox) Iterate() {
 	this.lock()
+	if this.Killed {
+		log.Panic("Tox was already killed")
+	}
+	if this.toxcore == nil {
+		log.Panic("toxcore became nil")
+	}
 	C.tox_iterate(this.toxcore, nil)
 	cbevts := this.cbevts
 	this.cbevts = nil
@@ -554,6 +562,9 @@ func (this *Tox) Iterate() {
 // for toktok new method
 func (this *Tox) Iterate2(userData interface{}) {
 	this.lock()
+	if this.toxcore == nil {
+		log.Panic("toxcore became nil")
+	}
 	this.cb_iterate_data = userData
 	C.tox_iterate(this.toxcore, nil)
 	this.cb_iterate_data = nil
