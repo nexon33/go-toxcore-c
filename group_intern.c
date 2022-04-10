@@ -121,10 +121,15 @@ typedef enum { USERSTATUS_NONE, USERSTATUS_AWAY, USERSTATUS_BUSY, USERSTATUS_INV
 struct Messenger {
     /*Logger*/ void *log;
     /*Mono_Time*/ void *mono_time;
+    /*Random*/ void *rng;
+    /*Network*/ void *ns;
 
     /*Networking_Core*/ void *net;
     /*Net_Crypto*/ void *net_crypto;
     /*DHT*/ void *dht;
+
+    /*Forwarding*/ void *forwarding;
+    /*Announcements*/ void *announce;
 
     /*Onion*/ void *onion;
     /*Onion_Announce*/ void *onion_a;
