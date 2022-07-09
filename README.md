@@ -20,11 +20,11 @@ The golang bindings for libtoxcore
     // use custom options
     opt := tox.NewToxOptions()
     t := tox.NewTox(opt)
-    av := tox.NewToxAv(t)
+    av := tox.NewToxAV(t)
     
     // use default options
     t := tox.NewTox(nil)
-    av := tox.NewToxAv(t)
+    av := tox.NewToxAV(t)
 
 ### Tests
 
