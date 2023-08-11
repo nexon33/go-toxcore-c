@@ -460,3 +460,12 @@ func (this *Tox) ConferenceGetType(groupNumber uint32) (int, error) {
 	}
 	return int(r), nil
 }
+
+func (this *Tox) ConferenceGetIdentifier(groupNumber uint32) (string, error) {
+	idbuf := [1 + C.TOX_PUBLIC_KEY_SIZE]byte{}
+	C.tox_conference_get_id(this.toxcore, C.uint32_t(groupNumber), (*C.uint8_t)(&idbuf[0]))
+	identifier := strings.ToUpper(hex.EncodeToString(idbuf[:]))
+	identifier = identifier[2:] // 1B(type)+32B(identifier)
+
+	return identifier, nil
+}

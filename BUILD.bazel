@@ -12,8 +12,6 @@ go_library(
         "const.go",
         "const_auto.go",
         "group.go",
-        "group_intern.c",
-        "group_intern.go",
         "group_legacy.go",
         "hooks.go",
         "options.go",
