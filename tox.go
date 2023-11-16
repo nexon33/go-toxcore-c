@@ -47,7 +47,7 @@ import (
 // "reflect"
 // "runtime"
 
-//////////
+// ------------
 // friend callback type
 type cb_friend_request_ftype func(this *Tox, pubkey string, message string, userData interface{})
 type cb_friend_message_ftype func(this *Tox, friendNumber uint32, message string, userData interface{})
@@ -370,7 +370,6 @@ func (this *Tox) CallbackSelfConnectionStatusAdd(cbfn cb_self_connection_status_
 	C.tox_callback_self_connection_status(this.toxcore, (*C.tox_self_connection_status_cb)(C.callbackSelfConnectionStatusWrapperForC))
 }
 
-// 包内部函数
 //export callbackFileRecvControlWrapperForC
 func callbackFileRecvControlWrapperForC(m *C.Tox, friendNumber C.uint32_t, fileNumber C.uint32_t,
 	control C.Tox_File_Control, userData unsafe.Pointer) {
@@ -617,12 +616,13 @@ func (this *Tox) Bootstrap(addr string, port uint16, pubkey string) (bool, error
 		return false, toxerr("Invalid pubkey")
 	}
 
-	var _addr = []byte(addr)
+	var _addr = C.CString(addr)
+	defer C.free(unsafe.Pointer(_addr))
 	var _port = C.uint16_t(port)
 	var _cpubkey = (*C.uint8_t)(&b_pubkey[0])
 
 	var cerr C.Tox_Err_Bootstrap
-	r := C.tox_bootstrap(this.toxcore, (*C.char)(unsafe.Pointer(&_addr[0])), _port, _cpubkey, &cerr)
+	r := C.tox_bootstrap(this.toxcore, _addr, _port, _cpubkey, &cerr)
 	if cerr > 0 {
 		return false, toxerr(cerr)
 	}
@@ -1162,14 +1162,7 @@ func (this *Tox) IsConnected() int {
 
 func (this *Tox) putcbevts(f func()) { this.cbevts = append(this.cbevts, f) }
 
-////////////
-/*
-原则说明：
-所有需要public_key的地方，在go空间内是实际串的16进制字符串表示。
-
-*/
-
-////////////////////
+// ------------
 func KeepPkg() {
 }
 
