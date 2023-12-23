@@ -1,8 +1,6 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 load("//tools/project:build_defs.bzl", "project")
 
-package(features = ["-layering_check"])
-
 project()
 
 go_library(
