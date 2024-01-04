@@ -1,4 +1,4 @@
-module github.com/TokTok/go-toxcore-c
+module github.com/nexon33/go-toxcore-c
 
 go 1.12
 
