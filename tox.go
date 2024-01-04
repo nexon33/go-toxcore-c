@@ -1143,6 +1143,7 @@ func (this *Tox) AddTcpRelay(addr string, port uint16, pubkey string) (bool, err
 		log.Panic(err)
 	}
 	if strings.ToUpper(hex.EncodeToString(b_pubkey)) != pubkey {
+		log.Println(strings.ToUpper(hex.EncodeToString(b_pubkey)) + " != " + pubkey)
 		log.Panic("wtf, hex enc/dec err")
 	}
 	var _pubkey = (*C.uint8_t)(&b_pubkey[0])
