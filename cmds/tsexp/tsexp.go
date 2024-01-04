@@ -9,7 +9,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/TokTok/go-toxcore-c"
+	"github.com/nexon33/go-toxcore-c"
 )
 
 func init() {

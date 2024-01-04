@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/TokTok/go-toxcore-c.svg?branch=master)](https://travis-ci.org/TokTok/go-toxcore-c)
-[![GoDoc](https://godoc.org/github.com/TokTok/go-toxcore-c?status.svg)](https://godoc.org/github.com/TokTok/go-toxcore-c)
+[![GoDoc](https://godoc.org/github.com/nexon33/go-toxcore-c?status.svg)](https://godoc.org/github.com/nexon33/go-toxcore-c)
 
 ## go-toxcore
 
@@ -10,12 +10,12 @@ The golang bindings for libtoxcore
 
     # fetch libtoxcore if necessary
     # see https://github.com/TokTok/c-toxcore/blob/master/INSTALL.md
-    go get github.com/TokTok/go-toxcore-c
+    go get github.com/nexon33/go-toxcore-c
 
 
 ### Examples
 
-    import "github.com/TokTok/go-toxcore-c"
+    import "github.com/nexon33/go-toxcore-c"
 
     // use custom options
     opt := tox.NewToxOptions()
